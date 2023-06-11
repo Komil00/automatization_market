@@ -86,11 +86,15 @@ class Mahsulot_olchovSerializers(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         savdolar_miqdor_instances = SavdoProduct.objects.filter(id=instance.id)
-        representation['savdolar_miqdori'] = ForSavdolarMiqdorSerializers(savdolar_miqdor_instances, many=True).data
+        savdolar_miqdori = ForSavdolarMiqdorSerializers(savdolar_miqdor_instances, many=True).data
         representation['sum_of_umumiy_ombordagi_miqdori'] = self.get_sum_of_dicts(representation['umumiy_ombordagi_miqdori'])
-        representation['sum_of_savdolar_miqdori'] = self.get_sum_of_dicts(representation['savdolar_miqdori'])
+        representation['sum_of_savdolar_miqdori'] = self.get_sum_of_dicts(savdolar_miqdori)
         representation['joriy_ombordagi_miqdor'] = self.get_sum_dict(representation['sum_of_umumiy_ombordagi_miqdori'],
                                                        representation['sum_of_savdolar_miqdori'])
+        representation['sum_of_umumiy_ombordagi_miqdori'] = sum(representation['sum_of_umumiy_ombordagi_miqdori'].values())
+        representation['sum_of_savdolar_miqdori'] = sum(representation['sum_of_savdolar_miqdori'].values())
+        representation['joriy_ombordagi_miqdor'] = sum(representation['joriy_ombordagi_miqdor'].values())
+
         return representation
 
 # Mahsulotlar Serializers - Mahsulot o'lchov orqali uning barcha ma'lumotlari
