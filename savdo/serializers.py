@@ -64,25 +64,21 @@ class Mahsulot_olchovSerializers(serializers.ModelSerializer):
         fields = ('id', 'mahsulot_number', 'olchov', 'narx', 'olchov_nomi', 'olchov_format', 'umumiy_ombordagi_miqdori')
 
     def get_sum_dict(self, dict1, dict2):
-
         sum_dict = dict1.copy()
-
         for key, value in dict2.items():
             if key in sum_dict:
                 sum_dict[key] -= value
             else:
                 sum_dict[key] = value
-
         return sum_dict
+
     def get_sum_of_dicts(self, dictionaries):
         result_dict = {}
-
         for dictionary in dictionaries:
             for key, value in dictionary.items():
                 result_dict[key] = result_dict.get(key, 0) + value
-
         return result_dict
-    
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         savdolar_miqdor_instances = SavdoProduct.objects.filter(id=instance.id)
@@ -94,7 +90,6 @@ class Mahsulot_olchovSerializers(serializers.ModelSerializer):
         representation['sum_of_umumiy_ombordagi_miqdori'] = sum(representation['sum_of_umumiy_ombordagi_miqdori'].values())
         representation['sum_of_savdolar_miqdori'] = sum(representation['sum_of_savdolar_miqdori'].values())
         representation['joriy_ombordagi_miqdor'] = sum(representation['joriy_ombordagi_miqdor'].values())
-
         return representation
 
 # Mahsulotlar Serializers - Mahsulot o'lchov orqali uning barcha ma'lumotlari

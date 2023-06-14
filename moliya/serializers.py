@@ -14,10 +14,34 @@ class TranzaksiyaSerializers(serializers.ModelSerializer):
         model = Tranzaksiya
         fields = ('id', 'title', 'turi', 'status')
 
+class Ombor_idSerializers(serializers.ModelSerializer):
+
+    user = LoginSerializer()
+    class Meta:
+        model = Omborxona
+        fields = [
+            'id',
+            'user',
+            'kategoriya',
+            'savdo_turi',
+            'mahsulot_nomi',
+            'olchov',
+            'miqdor',
+            'narx_turi',
+            'narx',
+            'total_summa',
+            'summa',
+            'vaqt',
+            'description',
+            'chiqim_id',
+        
+        ]
+
 
 class MoliyaChiqimSerializers(serializers.ModelSerializer):
     mahsulot_nomi = MahsulotlarSerializers(read_only=True)
     # total_miqdor = serializers.SerializerMethodField()
+    ombor_id = Ombor_idSerializers(read_only=True)
 
     class Meta:
         model = Moliya_chiqim
@@ -70,6 +94,7 @@ class OlchovSerializers(serializers.ModelSerializer):
         model = Mahsulot_olchov
         fields = ['id', 'olchov_nomi', 'olchov_format', 'olchov', 'narx', 'mahsulot_number']
 
+
 class MoliyaChiqimOmborSerializers(serializers.ModelSerializer):
     mahsulot_nomi = MahsulotlarSerializers(read_only=True)
     # total_miqdor = serializers.SerializerMethodField()
@@ -98,7 +123,7 @@ class OmborGetSerializers(serializers.ModelSerializer):
     mahsulot_nomi = MahsulotNomiSerializers()
     olchov = OlchovSerializers()
     user = LoginSerializer()
-    moliya_chiqim = MoliyaChiqimOmborSerializers(read_only=True,many=True)
+    moliya_chiqim = MoliyaChiqimOmborSerializers(source='ombor_moliya_chiqim',read_only=True,many=True)
     class Meta:
         model = Omborxona
         fields = [
@@ -119,8 +144,6 @@ class OmborGetSerializers(serializers.ModelSerializer):
             'moliya_chiqim'
         
         ]
-
-
 
 
 class OmborPostSerializers(serializers.ModelSerializer):
