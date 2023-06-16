@@ -14,31 +14,47 @@ class TranzaksiyaSerializers(serializers.ModelSerializer):
         model = Tranzaksiya
         fields = ('id', 'title', 'turi', 'status')
 
+class MahsulotlarForOmbor_idSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model = Mahsulotlar
+        fields = ('id', 'mahsulot_nomi')
+
+
 class Ombor_idSerializers(serializers.ModelSerializer):
+    mahsulot_nomi = MahsulotlarForOmbor_idSerializers(read_only=True)
 
     user = LoginSerializer()
     class Meta:
         model = Omborxona
         fields = [
-            'id',
             'user',
-            'kategoriya',
-            'savdo_turi',
             'mahsulot_nomi',
-            'olchov',
             'miqdor',
-            'narx_turi',
-            'narx',
-            'total_summa',
-            'summa',
-            'vaqt',
-            'description',
-            'chiqim_id',
-        
         ]
 
+class MoliyaChiqimPostSerializers(serializers.ModelSerializer):
 
-class MoliyaChiqimSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Moliya_chiqim
+        fields = (
+            'id',
+            'user',
+            'nomi',
+            'tranzaksiya_turi',
+            'mijoz',
+            'ishchi',
+            'tolov_turi',
+            'vaqt',
+            'mahsulot_nomi',
+            'olchov',
+            'summa',
+            'ombor_id',
+            'description',
+        )
+
+
+class MoliyaChiqimGetSerializers(serializers.ModelSerializer):
     mahsulot_nomi = MahsulotlarSerializers(read_only=True)
     # total_miqdor = serializers.SerializerMethodField()
     ombor_id = Ombor_idSerializers(read_only=True)
@@ -119,6 +135,7 @@ class MoliyaChiqimOmborSerializers(serializers.ModelSerializer):
 
 
 # Omborxona Serializers
+from django.db.models import Sum
 class OmborGetSerializers(serializers.ModelSerializer):
     mahsulot_nomi = MahsulotNomiSerializers()
     olchov = OlchovSerializers()
@@ -144,6 +161,13 @@ class OmborGetSerializers(serializers.ModelSerializer):
             'moliya_chiqim'
         
         ]
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        ombor = Omborxona.objects.get(id=instance.id)
+        representation['summa_all'] = ombor.ombor_moliya_chiqim.aggregate(summa=Sum('summa')).get('summa')
+        # print(moliya_chiqim.ombor_moliya_chiqim.aggregate(summa=Sum('value'))['total_value'])
+
+        return representation
 
 
 class OmborPostSerializers(serializers.ModelSerializer):

@@ -9,7 +9,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
 from rest_framework.viewsets import ModelViewSet
 
 from moliya.models import Moliya_chiqim, Omborxona, OmborCategory
-from moliya.serializers import (MoliyaChiqimSerializers, OmborPostSerializers,OmborGetSerializers, TranzaksiyaSerializers,
+from moliya.serializers import (MoliyaChiqimPostSerializers, MoliyaChiqimGetSerializers, OmborPostSerializers,OmborGetSerializers, TranzaksiyaSerializers,
                                 OmborCategorySerializers)
 from products.models import Mahsulot_olchov
 from savdo.models import Tranzaksiya
@@ -18,7 +18,13 @@ from savdo.models import Tranzaksiya
 # Moliya chiqim Views
 class MoliyaChiqimViewSet(ModelViewSet):
     queryset = Moliya_chiqim.objects.all()
-    serializer_class = MoliyaChiqimSerializers
+    serializer_class = MoliyaChiqimGetSerializers
+
+    
+    def get_serializer_class(self):        
+        if self.action in ['list']:
+            return MoliyaChiqimGetSerializers
+        return MoliyaChiqimPostSerializers
 
     def get_queryset(self):
         queryset = super().get_queryset()
