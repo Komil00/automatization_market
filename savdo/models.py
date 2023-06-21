@@ -8,7 +8,6 @@ TYPE_STATUS = (
     ('kirim', "kirim"),
     ('chiqim', "chiqim"),
 )
-
 # TRANZ_TUR - Moliyada nima maqsad uchun Kirim yoki Chiqim qilish choicelar
 TRANZ_TUR = (
     ('mijoz', "mijoz"),
@@ -21,11 +20,9 @@ FORMAT = [
     ('kg', 'kg'),
     ('dona', 'dona'),
     ('litr', 'litr'),
-    ('tonna', 'tonna'),
     ('mm', 'mm'),
     ('sm', 'santimetr'),
-    ('metr kvadrat', 'metr kvadrat'),
-    ('metr kub', 'metr kub'),
+
 ]
 PAY_STATUS = (
     ('naqt', "Naqt"),
@@ -40,10 +37,8 @@ class Tranzaksiya(models.Model):
     title = models.CharField(max_length=200)
     turi = models.CharField(max_length=200, choices=TYPE_STATUS)
     status = models.CharField(max_length=200, choices=TRANZ_TUR)
-
     def __str__(self):
         return f"{self.title} | {self.turi}"
-
     class Meta:
         verbose_name = "Tranzaksiya turi"
         verbose_name_plural = "Tranzaksiya turi"
@@ -66,23 +61,15 @@ class Savdo(models.Model):
     vaqt = models.DateTimeField()
     mijoz = models.ForeignKey(Mijoz, on_delete=models.CASCADE, related_name='savdolar')
     chegirma = models.PositiveIntegerField(default=0)
-
     @property
     def get_mijoz_total_sum(self):
         summa = sum([product.summa for product in self.tolovlar_mijozlar.all()])
         return summa
-
     def get_mahsulot_total_sum(self):
         mahsulot_summa = sum([product.umumiy for product in self.savdo_products.all()])
         return mahsulot_summa
-
     def total_summa(self):
         return sum([product.umumiy for product in self.savdo_products.all()]) - self.chegirma
-    
-    
-    # def ombor_farq(self):
-    #     return self.sum([ombor.summa for ombor in self.ombor_olchovi.all()]) - self.miqdor
-
     class Meta:
         verbose_name = "Savdo"
         verbose_name_plural = "Savdolar"
@@ -105,20 +92,14 @@ class SavdoProduct(models.Model):
     narx_turi = models.CharField(max_length=223, default="Chegirma", choices=NarxTuri, null=True)
     narx = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
-    
     sotish_turi = models.CharField(max_length=223, default="O'lchovli Savdo", choices=Sotish_turi, null=True)
     sotish_olchov = models.CharField(max_length=9000, null=True, blank=True)
-    
     total_summa = models.PositiveBigIntegerField(default=0)
-
     @property
     def umumiy(self):
         if self.narx > 0:
             return self.narx * self.miqdor
         return self.olchov.narx * self.miqdor
-    
-    
-
     def str(self):
         return f"{self.mahsulot} - {self.savdo.mijoz}"
 
@@ -133,7 +114,7 @@ class Tolovlar(models.Model):
     muddat = models.DateTimeField(null=True, blank=True)
     summa = models.FloatField(default=0)
     status = models.BooleanField(default=True)
-    yaralgan_sana = models.DateTimeField(null=True)
+    yaralgan_sana = models.DateTimeField()
     chek_id = models.IntegerField(null=True, blank=True, unique=True)
     izoh = models.TextField(null=True, blank=True)
 

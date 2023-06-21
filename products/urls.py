@@ -10,8 +10,6 @@ from savdo.views import *
 from products.views import *
 from moliya.views import *
 
-
-
 router = SimpleRouter()
 router.register('mijoz', MijozViewSet)
 router.register('mahsulot', MahsulotlarViewSet)
@@ -24,21 +22,15 @@ router.register('analitika', AnalitikaViewSet)
 router.register('tranzaksiya', TranzaksiyaViewSet)
 router.register("tolovlar", TolovViewSet)
 router.register("savdolar", SavdoViewSet)
-
 router.register("savdosta", SavdoStaViewSet)
-
-
 router.register("savdolar_pro", SavdoProductViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
     path("savdo/", SavdoCreateView.as_view()),
-    # path("savdo_pro/", SavdoProductCreateView.as_view()),
-    
     path("tolov/<int:pk>", MijozTolovlarView.as_view(), name="tolov"),
     path("savdo/<int:pk>", SavdoAPIView.as_view()),
     path("mijoz/<int:pk>", MijozOrderHistoryView.as_view(), name="order-history"),
-
     path('savdo_pro/', SavdoProductListCreateAPIView.as_view(), name='bulk-create')
 
 ]

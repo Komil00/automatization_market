@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.shortcuts import redirect
+from rest_framework.permissions import IsAuthenticated
 from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, pagination, status
@@ -12,6 +13,8 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.viewsets import ModelViewSet
+from moliya.models import Omborxona 
+from django.core.exceptions import ObjectDoesNotExist
 
 from savdo.filters import SavdoFilter
 from savdo.models import Savdo, SavdoProduct, Tolovlar, Tranzaksiya
@@ -74,7 +77,7 @@ class SavdoPagination(pagination.PageNumberPagination):
 
 # Savdo Views
 class SavdoViewSet(ModelViewSet):
-    # permission_classes = [IsAdminUser]
+    # permission_classes = [IsAuthenticated]
     pagination_class = SavdoPagination
     queryset = Savdo.objects.all()
     filter_backends = [DjangoFilterBackend, SearchFilter]
@@ -91,9 +94,6 @@ class SavdoViewSet(ModelViewSet):
         chegirma_turi = self.request.query_params.get("chegirma_turi")
         mijoz = self.request.query_params.get("mijoz")
         vaqt = self.request.query_params.get("vaqt")
-        ombor_farq = self.request.query_params.get("ombor_farq")
-        
-        
         is_active = self.request.query_params.get("is_active")
         filter_data = {}
         if chegirma_turi:
@@ -106,9 +106,6 @@ class SavdoViewSet(ModelViewSet):
             filter_data['is_active__icontains'] = is_active
         if vaqt:
             filter_data['vaqt__icontains'] = vaqt
-            
-        if ombor_farq:
-            filter_data['ombor_farq__icontains'] = ombor_farq
         return queryset
 
     @action(detail=True, methods=['get'])
@@ -156,47 +153,60 @@ class SavdoProductListCreateAPIView(generics.ListCreateAPIView):
 
 ########################
 # Savdo Product Views
+class SavdoProductViewSet(ModelViewSet): 
+    queryset = SavdoProduct.objects.all() 
+    queryset = Savdo.objects.all().order_by('-id') 
+    serializer_class = SavdoProductSerializers 
 
-
-class SavdoProductViewSet(ModelViewSet):
-    queryset = SavdoProduct.objects.all()
-    queryset = Savdo.objects.all().order_by('-id')
-    serializer_class = SavdoProductSerializers
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = SavdoProduct.objects.all().order_by('-id')
-        savdo = self.request.query_params.get("savdo")
-        mahsulot = self.request.query_params.get("mahsulot")
-        olchov = self.request.query_params.get("olchov")
-        miqdor = self.request.query_params.get("miqdor")
-        narx_turi = self.request.query_params.get("narx_turi")
-        sotish_turi = self.request.query_params.get("sotish_turi")
-        sotish_olchov = self.request.query_params.get("sotish_olchov")
-        narx = self.request.query_params.get("narx")
-        total_summa = self.request.query_params.get("total_summa")
-        filter_data = {}
-        if mahsulot:
-            filter_data['mahsulot__icontains'] = mahsulot
-        if savdo:
-            filter_data['savdo__icontains'] = savdo
-        if olchov:
-            filter_data['olchov__icontains'] = olchov
-        if miqdor:
-            filter_data['miqdor__icontains'] = miqdor
-        if narx_turi:
-            filter_data['narx_turi__icontains'] = narx_turi
-        if sotish_turi:
-            filter_data['sotish_turi__icontains'] = sotish_turi
-        if sotish_olchov:
-            filter_data['sotish_olchov__icontains'] = sotish_olchov
-        if narx:
-            filter_data['narx__icontains'] = narx
-        if total_summa:
-            filter_data['total_summa__icontains'] = total_summa
-        queryset = queryset.filter(**filter_data)
-        return queryset
-
+    def get_queryset(self): 
+        queryset = super().get_queryset() 
+        queryset = SavdoProduct.objects.all().order_by('-id') 
+        savdo = self.request.query_params.get("savdo") 
+        mahsulot = self.request.query_params.get("mahsulot") 
+        olchov = self.request.query_params.get("olchov") 
+        miqdor = self.request.query_params.get("miqdor") 
+        narx_turi = self.request.query_params.get("narx_turi") 
+        sotish_turi = self.request.query_params.get("sotish_turi") 
+        sotish_olchov = self.request.query_params.get("sotish_olchov") 
+        narx = self.request.query_params.get("narx") 
+        total_summa = self.request.query_params.get("total_summa") 
+        filter_data = {} 
+        if mahsulot: 
+            filter_data['mahsulot__icontains'] = mahsulot 
+        if savdo: 
+            filter_data['savdo__icontains'] = savdo 
+        if olchov: 
+            filter_data['olchov__icontains'] = olchov 
+        if miqdor: 
+            filter_data['miqdor__icontains'] = miqdor 
+        if narx_turi: 
+            filter_data['narx_turi__icontains'] = narx_turi 
+        if sotish_turi: 
+            filter_data['sotish_turi__icontains'] = sotish_turi 
+        if sotish_olchov: 
+            filter_data['sotish_olchov__icontains'] = sotish_olchov 
+        if narx: 
+            filter_data['narx__icontains'] = narx 
+        if total_summa: 
+            filter_data['total_summa__icontains'] = total_summa 
+        queryset = queryset.filter(**filter_data) 
+        return queryset 
+     
+    def create(self, request, *args, **kwargs): 
+        serializer = self.get_serializer(data=request.data) 
+        if serializer.is_valid(): 
+            olchov = serializer.validated_data['olchov'] 
+            mahsulot = serializer.validated_data["mahsulot"] 
+            miqdor = serializer.validated_data['miqdor'] 
+            try: 
+                miqdorni_ayirish = Omborxona.objects.get(mahsulot=mahsulot, olchov=olchov) 
+                miqdorni_ayirish.miqdor = int(miqdorni_ayirish.miqdor) - int(miqdor) 
+                miqdorni_ayirish.save() 
+            except ObjectDoesNotExist: 
+                return Response("Omborxonada bunaqa mahsulot yoq.", status=status.HTTP_400_BAD_REQUEST) 
+            self.perform_create(serializer) 
+            return Response(serializer.data, status=status.HTTP_201_CREATED) 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # To'lovlar Views
 

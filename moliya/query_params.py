@@ -33,29 +33,19 @@ def moliya_chiqim_query_params():
         ("summa", "summa"),
         ("vaqt", "vaqt"),
         ("description", "description"),
-        ("ombor_id", "ombor_id")
+        ("ombor_savdo", "ombor_savdo"),
+        ("tulov_status", "tulov_status"),
     ]
 
     return [openapi.Parameter(name, openapi.IN_QUERY, description=desc, type=openapi.TYPE_STRING)
             for name, desc in param_list]
-
-# Ombor Category query params
-
-def ombor_category_query_params():
-    query_params = [
-        ("kategoriya", "kategoriya uchun"),
-    ]
-
-    return [openapi.Parameter(name, openapi.IN_QUERY, description=desc, type=openapi.TYPE_STRING)
-            for name, desc in query_params]
 
 
 # Omborxona query params
 def omborxona_query_params():
     query_params = [
         ("savdo_turi", "ombor savdo_turi"),
-        ("kategoriya_ombor", "kategoriya_ombor"),
-        ("mahsulot_nomi", "ombor mahsulot_nomi"),
+        ("mahsulot", "ombor mahsulot"),
         ("olchov", "ombor olchov"),
         ("total_summa", "total_summa"),
         ("summa", "summa"),

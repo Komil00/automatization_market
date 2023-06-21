@@ -70,17 +70,11 @@ class MahsulotOlchovViewSet(ModelViewSet):
         olchov = self.request.query_params.get("olchov")
         olchov_nomi = self.request.query_params.get("olchov_nomi")
         olchov_format = self.request.query_params.get("olchov_format")
-        narx = self.request.query_params.get("narx")
-        mahsulot_number = self.request.query_params.get("mahsulot_number")
         filter_data = {}
         if olchov:
             filter_data['olchov_id'] = olchov
         if olchov:
             filter_data['olchov'] = olchov
-        if narx:
-            filter_data['narx'] = narx
-        if mahsulot_number:
-            filter_data['mahsulot_number'] = mahsulot_number
         if olchov_format:
             filter_data['olchov_format'] = olchov_format
         if olchov_nomi:

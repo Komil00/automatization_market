@@ -14,6 +14,19 @@ class TranzaksiyaSerialiers(serializers.ModelSerializer):
         fields = ('id', 'title', 'turi', 'status')
 
 
+
+# Omborda ko'rinadigan mahsulotlar va Mahsulot o'lchov ma'lumotlari
+class MahsulotNomiSerializers(serializers.ModelSerializer): 
+    class Meta: 
+        model = Mahsulotlar 
+        fields = ['id', 'mahsulot_nomi', 'mahsulot_format'] 
+class OlchovSerializers(serializers.ModelSerializer): 
+    class Meta: 
+        model = Mahsulot_olchov 
+        fields = ['id', 'olchov_nomi', 'olchov_format', 'olchov', 'narx', 'mahsulot_number'] 
+ 
+ 
+
 # Tolovlar Serializers - Moliya kirim uchun - Mijoz Savdo qilganda to'lov qilish uchun
 class TolovlarSerializers(serializers.ModelSerializer):
     class Meta:
@@ -55,22 +68,13 @@ class OlchovlarSerializers(serializers.ModelSerializer):
         model = Omborxona
         fields = ['miqdor']
 
-# Mahsulot o'lchov Serializers - Mahsulot nom, formati orqali unga narx berish
+# Mahsulot o'lchov Serializers - Mahsulot nom, formati orqali unga narx berish va Ombordagi mahsulot miqdorlari bilan ishlash uchun
 class Mahsulot_olchovSerializers(serializers.ModelSerializer):
-    umumiy_ombordagi_miqdori = OlchovlarSerializers(source='ombor_olchovi', many=True, read_only=True)
+    joriy_ombordagi_miqdor = OlchovlarSerializers(source='ombor_olchovi', many=True, read_only=True)
 
     class Meta:
         model = Mahsulot_olchov
-        fields = ('id', 'mahsulot_number', 'olchov', 'narx', 'olchov_nomi', 'olchov_format', 'umumiy_ombordagi_miqdori')
-
-    def get_sum_dict(self, dict1, dict2):
-        sum_dict = dict1.copy()
-        for key, value in dict2.items():
-            if key in sum_dict:
-                sum_dict[key] -= value
-            else:
-                sum_dict[key] = value
-        return sum_dict
+        fields = ('id', 'mahsulot_number', 'olchov', 'narx', 'olchov_nomi', 'olchov_format', 'joriy_ombordagi_miqdor')
 
     def get_sum_of_dicts(self, dictionaries):
         result_dict = {}
@@ -81,16 +85,20 @@ class Mahsulot_olchovSerializers(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        savdolar_miqdor_instances = SavdoProduct.objects.filter(id=instance.id)
+        savdolar_miqdor_instances = SavdoProduct.objects.filter(mahsulot=instance.mahsulot_number, olchov__olchov_nomi=instance.olchov_nomi)
         savdolar_miqdori = ForSavdolarMiqdorSerializers(savdolar_miqdor_instances, many=True).data
-        representation['sum_of_umumiy_ombordagi_miqdori'] = self.get_sum_of_dicts(representation['umumiy_ombordagi_miqdori'])
+        # print(savdolar_miqdori)
         representation['sum_of_savdolar_miqdori'] = self.get_sum_of_dicts(savdolar_miqdori)
-        representation['joriy_ombordagi_miqdor'] = self.get_sum_dict(representation['sum_of_umumiy_ombordagi_miqdori'],
-                                                       representation['sum_of_savdolar_miqdori'])
-        representation['sum_of_umumiy_ombordagi_miqdori'] = sum(representation['sum_of_umumiy_ombordagi_miqdori'].values())
         representation['sum_of_savdolar_miqdori'] = sum(representation['sum_of_savdolar_miqdori'].values())
-        representation['joriy_ombordagi_miqdor'] = sum(representation['joriy_ombordagi_miqdor'].values())
+
+        if representation['joriy_ombordagi_miqdor']:
+            representation['joriy_ombordagi_miqdor'] = representation['joriy_ombordagi_miqdor'][0]['miqdor']
+        else:
+            representation['joriy_ombordagi_miqdor'] = 0
+        representation['sum_of_umumiy_ombordagi_miqdori'] = representation['joriy_ombordagi_miqdor']
+        
         return representation
+    
 
 # Mahsulotlar Serializers - Mahsulot o'lchov orqali uning barcha ma'lumotlari
 
@@ -137,7 +145,7 @@ class SavdoProMijozSerializers(serializers.ModelSerializer):
     class Meta:
         model = SavdoProduct
         fields = '__all__'
-        depth = 2
+        depth = 1 # aa
 
 
 class SavdoForMijozSerializer(serializers.ModelSerializer):
@@ -155,13 +163,10 @@ class SavdoForMijozSerializer(serializers.ModelSerializer):
             'vaqt',
             'total_summa',
             'tolovlar',
-            # 'tolovlar_mijozlar',
             'get_mijoz_total_sum',
             'get_mahsulot_total_sum',
             'chegirma',
             'products',
-            # 'ombor_farq'
-
         )
         depth = 3
 
@@ -220,7 +225,6 @@ class TolovlarGETSerializers(serializers.ModelSerializer):
             'summa',
             'izoh',
             'chek_id',
-
         )
 
     def to_representation(self, instance):
@@ -336,22 +340,22 @@ class SavdoProductCreatePostSerializers(serializers.ModelSerializer):
         fields = (
             'id', 'mahsulot', 'olchov', 'miqdor', 'narx', 'ombor_miqdor_id')
 
-    def create(self, validated_data):
-        summa = validated_data.pop('narx')
-        miqdor = validated_data.pop('miqdor')
+    # def create(self, validated_data):
+    #     summa = validated_data.pop('narx')
+    #     miqdor = validated_data.pop('miqdor')
         
-        # Ombordagi mahsulotga qarab Savdo miqdorni taqqoslash funksiyasi
-        ombor_miqdor_id = validated_data.pop('ombor_miqdor_id')
-        ombor_miqdor = Moliya_chiqim.objects.filter(id=ombor_miqdor_id)
+    #     # Ombordagi mahsulotga qarab Savdo miqdorni taqqoslash funksiyasi
+    #     ombor_miqdor_id = validated_data.pop('ombor_miqdor_id')
+    #     ombor_miqdor = Moliya_chiqim.objects.filter(id=ombor_miqdor_id)
 
-        if miqdor < ombor_miqdor.miqdor:
-            mahsulot = validated_data.pop('mahsulot')
-            savdo_many = SavdoProduct.objects.create(**validated_data)
-            savdo_many.mahsulot = mahsulot
-            savdo_many.miqdor = miqdor
-            savdo_many.narx = summa
-            savdo_many.save()
-            return savdo_many
+    #     if miqdor < ombor_miqdor.miqdor:
+    #         mahsulot = validated_data.pop('mahsulot')
+    #         savdo_many = SavdoProduct.objects.create(**validated_data)
+    #         savdo_many.mahsulot = mahsulot
+    #         savdo_many.miqdor = miqdor
+    #         savdo_many.narx = summa
+    #         savdo_many.save()
+    #         return savdo_many
         
-        else:
-            return 'Siz kiritgan miqdor juda kop'
+    #     else:
+    #         return 'Siz kiritgan miqdor juda kop'
