@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from moliya.models import Moliya_chiqim, Omborxona
+from moliya.models import Moliya_chiqim, Omborxona, Omborxona_Get
 
 
 class MoliyaChiqimAdmin(admin.ModelAdmin):
@@ -17,3 +17,4 @@ class OmborxonaAdmin(admin.ModelAdmin):
     class Meta:
         model = Omborxona
 admin.site.register(Omborxona, OmborxonaAdmin)
+admin.site.register(Omborxona_Get)

@@ -62,6 +62,40 @@ class Omborxona(models.Model):
         verbose_name = 'Omborxona'
         verbose_name_plural = 'Omborxona'
 
+class Omborxona_Get(models.Model):
+    SavdoTuri = (
+        ("Naqtga", "Naqtga"),
+        ("Qarzga", "Qarzga"),
+    )
+    NarxTuri = (
+        ("Narxli", "Narxli"),
+        ("Umumiy narx", "Umumiy narx"),
+    )
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name="Sotgan", help_text="Sotuvchi",null=True)
+    savdo_turi = models.CharField(max_length=223, default='Naqtga', choices=SavdoTuri, null=True)
+    mahsulot = models.ForeignKey(Mahsulotlar, related_name='ombor_mahsulotlar', on_delete=models.CASCADE)
+    olchov = models.ForeignKey(Mahsulot_olchov, related_name='ombor_olchovilar', on_delete=models.CASCADE)
+    miqdor = models.FloatField()
+    narx_turi = models.CharField(max_length=223, default="Narxli", choices=NarxTuri, null=True)
+    narx = models.FloatField(default=0, null=True, blank=True)
+    summa = models.FloatField(default=0)
+    total_summa = models.PositiveIntegerField(default=0)
+    vaqt = models.DateTimeField()
+    @property
+    def summa(self):
+        try:
+            narx = float(self.narx)
+            miqdor = float(self.miqdor)
+            return narx * miqdor
+        except (ValueError, TypeError):
+            return 0
+    def __str__(self):
+        return f"{self.mahsulot}"
+
+    class Meta:
+        verbose_name = 'Omborxona_Get'
+        verbose_name_plural = 'Omborxona_Get'
+
 # Moliya chiqim (Pul chiqishi)
 # Moliya chiqim - Omborga kelgan Mahsulot mabodo qarzga bo'lsa, uni to'lashda foydalaniladi
 class Moliya_chiqim(models.Model):

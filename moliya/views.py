@@ -7,11 +7,13 @@ from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK, HTTP_400_BAD_REQUEST,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.viewsets import ModelViewSet
-
-from moliya.models import Moliya_chiqim, Omborxona
+from rest_framework import status
+from rest_framework.response import Response
+from moliya.models import Moliya_chiqim, Omborxona, Omborxona_Get
 from moliya.serializers import (MoliyaChiqimPostSerializers, MoliyaChiqimGetSerializers, OmborPostSerializers,OmborGetSerializers, TranzaksiyaSerializers)
-from products.models import Mahsulot_olchov
+from products.models import Mahsulot_olchov, Mahsulotlar
 from savdo.models import Tranzaksiya
+from users.models import User
 
 
 
@@ -140,3 +142,34 @@ class OmborViewSet(ModelViewSet):
         queryset = queryset.filter(**filter_data)
         return queryset
 
+    def create(self, request, *args, **kwargs):
+        omborxona_serializer = OmborPostSerializers(data=self.request.data)
+        omborxona_serializer.is_valid(raise_exception=True)
+        omborxona_serializer.save()
+        self.perform_create(omborxona_serializer)
+        return Response(status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        user_id = self.request.data.get('user')
+        user = User.objects.get(id=user_id)
+        savdo_turi = self.request.data.get('savdo_turi')
+        mahsulot_id = self.request.data.get('mahsulot')
+        mahsulot = Mahsulotlar.objects.get(id=mahsulot_id)
+        olchov_id = self.request.data.get('olchov')
+        olchov = Mahsulot_olchov.objects.get(id=olchov_id)
+        miqdor = self.request.data.get('miqdor')
+        narx = self.request.data.get('narx')
+        narx_turi = self.request.data.get('narx_turi')
+        vaqt = self.request.data.get('vaqt')
+
+        create_ombor = Omborxona_Get.objects.create(
+            user=user,
+            savdo_turi=savdo_turi,
+            mahsulot=mahsulot,
+            olchov=olchov,
+            miqdor=miqdor,
+            narx=narx,
+            narx_turi=narx_turi,
+            vaqt=vaqt
+        )
+        create_ombor.save()
