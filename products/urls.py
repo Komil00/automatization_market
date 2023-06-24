@@ -17,6 +17,8 @@ router.register('mahsulot_olchov', MahsulotOlchovViewSet)
 router.register('tolovlar', TolovViewSet)
 router.register('moliya_chiqim', MoliyaChiqimViewSet)
 router.register('ombor', OmborViewSet)
+router.register('ombor_get_all', OmborGetViewSet)
+
 router.register('ishchi', IshchiViewSet)
 router.register('analitika', AnalitikaViewSet)
 router.register('tranzaksiya', TranzaksiyaViewSet)

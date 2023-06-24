@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db.models import Sum
-from moliya.models import Moliya_chiqim, Omborxona
+from moliya.models import Moliya_chiqim, Omborxona, Omborxona_Get
 from products.models import Mahsulot_olchov, Mahsulotlar
 from savdo.models import Tranzaksiya
 from savdo.serializers import Mahsulot_olchovSerializers, MahsulotlarSerializers, MijozSerializers, SavdoProductSerializers, TolovlarSerializers
@@ -179,3 +179,27 @@ class OmborPostSerializers(serializers.ModelSerializer):
             'summa',
             'vaqt',
         ]
+
+class OmborGetAllSerializers(serializers.ModelSerializer): 
+    mahsulot = MahsulotNomiSerializers() 
+    olchov = OlchovSerializers() 
+    user = LoginSerializer() 
+    moliya_chiqim = MoliyaChiqimOmborSerializers(source='ombor_moliya_chiqim',read_only=True,many=True) 
+    class Meta: 
+        model = Omborxona_Get 
+        fields = [ 
+            'id', 
+            'user', 
+            'savdo_turi', 
+            'mahsulot', 
+            'olchov', 
+            'miqdor', 
+            'narx_turi', 
+            'narx', 
+            'total_summa', 
+            'summa', 
+            'vaqt', 
+            'moliya_chiqim' 
+         
+        ] 
+
