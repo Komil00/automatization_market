@@ -103,6 +103,7 @@ class TranzaksiyaViewSet(ModelViewSet):
 class OmborViewSet(ModelViewSet):
     queryset = Omborxona.objects.all().order_by('-id')
     serializer_class = OmborGetSerializers
+    http_method_names = ['post']
 
     def get_serializer_class(self):        
         if self.action in ['list']:
@@ -157,6 +158,7 @@ class OmborViewSet(ModelViewSet):
         mahsulot = Mahsulotlar.objects.get(id=mahsulot_id)
         olchov_id = self.request.data.get('olchov')
         olchov = Mahsulot_olchov.objects.get(id=olchov_id)
+        total_summa = self.request.data.get('total_summa')
         miqdor = self.request.data.get('miqdor')
         narx = self.request.data.get('narx')
         narx_turi = self.request.data.get('narx_turi')
@@ -170,7 +172,8 @@ class OmborViewSet(ModelViewSet):
             miqdor=miqdor,
             narx=narx,
             narx_turi=narx_turi,
-            vaqt=vaqt
+            vaqt=vaqt,
+            total_summa=total_summa
         )
         create_ombor.save()
 

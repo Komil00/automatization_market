@@ -114,7 +114,7 @@ class Moliya_chiqim(models.Model):
     # mahsulot_nomi = models.ForeignKey(Mahsulotlar, related_name='mahsulot_nom', on_delete=models.SET_NULL, null=True,blank=True)
     # olchov = models.ForeignKey(Mahsulot_olchov, related_name='olchovi', on_delete=models.SET_NULL, null=True, blank=True)
     summa = models.PositiveIntegerField(null=True, blank=True)
-    ombor_savdo = models.ForeignKey(Omborxona, on_delete=models.SET_NULL,related_name='ombor_moliya_chiqim',null=True, blank=True)
+    ombor_savdo = models.ForeignKey(Omborxona_Get, on_delete=models.SET_NULL,related_name='ombor_moliya_chiqim',null=True, blank=True)
     tulov_status = models.CharField(max_length=200, choices=TolovStatus, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
 

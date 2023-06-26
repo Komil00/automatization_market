@@ -137,7 +137,7 @@ class OmborGetSerializers(serializers.ModelSerializer):
     mahsulot = MahsulotNomiSerializers() 
     olchov = OlchovSerializers() 
     user = LoginSerializer() 
-    moliya_chiqim = MoliyaChiqimOmborSerializers(source='ombor_moliya_chiqim',read_only=True,many=True) 
+    # moliya_chiqim = MoliyaChiqimOmborSerializers(source='ombor_moliya_chiqim',read_only=True,many=True) 
     class Meta: 
         model = Omborxona 
         fields = [ 
@@ -152,15 +152,15 @@ class OmborGetSerializers(serializers.ModelSerializer):
             'total_summa', 
             'summa', 
             'vaqt', 
-            'moliya_chiqim' 
+            # 'moliya_chiqim' 
          
         ] 
-    def to_representation(self, instance): 
-        representation = super().to_representation(instance) 
-        ombor = Omborxona.objects.get(id=instance.id) 
-        summa_all = ombor.ombor_moliya_chiqim.aggregate(summa=Sum('summa')).get('summa') 
-        representation['summa_all'] = summa_all if summa_all is not None else 0 
-        return representation
+    # def to_representation(self, instance): 
+    #     representation = super().to_representation(instance) 
+    #     ombor = Omborxona.objects.get(id=instance.id) 
+    #     summa_all = ombor.ombor_moliya_chiqim.aggregate(summa=Sum('summa')).get('summa') 
+    #     representation['summa_all'] = summa_all if summa_all is not None else 0 
+    #     return representation
 
 
 class OmborPostSerializers(serializers.ModelSerializer):
@@ -203,3 +203,9 @@ class OmborGetAllSerializers(serializers.ModelSerializer):
          
         ] 
 
+    def to_representation(self, instance): 
+        representation = super().to_representation(instance) 
+        ombor = Omborxona_Get.objects.get(id=instance.id) 
+        summa_all = ombor.ombor_moliya_chiqim.aggregate(summa=Sum('summa')).get('summa') 
+        representation['summa_all'] = summa_all if summa_all is not None else 0 
+        return representation

@@ -1,6 +1,7 @@
 from rest_framework import serializers
+from django.db.models import Sum
 
-from moliya.models import Moliya_chiqim, Tranzaksiya, Omborxona
+from moliya.models import Moliya_chiqim, Omborxona_Get, Tranzaksiya, Omborxona
 from products.models import Mahsulot_olchov, Mahsulotlar
 from savdo.models import Savdo, SavdoProduct, Tolovlar
 from users.models import Mijoz
@@ -95,8 +96,8 @@ class Mahsulot_olchovSerializers(serializers.ModelSerializer):
             representation['joriy_ombordagi_miqdor'] = representation['joriy_ombordagi_miqdor'][0]['miqdor']
         else:
             representation['joriy_ombordagi_miqdor'] = 0
-        representation['sum_of_umumiy_ombordagi_miqdori'] = representation['joriy_ombordagi_miqdor']
-        
+        representation['sum_of_umumiy_ombordagi_miqdori'] = representation['joriy_ombordagi_miqdor'] + representation['sum_of_savdolar_miqdori']
+
         return representation
     
 
