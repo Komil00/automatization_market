@@ -209,3 +209,21 @@ class OmborGetAllSerializers(serializers.ModelSerializer):
         summa_all = ombor.ombor_moliya_chiqim.aggregate(summa=Sum('summa')).get('summa') 
         representation['summa_all'] = summa_all if summa_all is not None else 0 
         return representation
+
+class OmborPutPutchAllSerializers(serializers.ModelSerializer): 
+    class Meta: 
+        model = Omborxona_Get 
+        fields = [ 
+            'id', 
+            'user', 
+            'savdo_turi', 
+            'mahsulot', 
+            'olchov', 
+            'miqdor', 
+            'narx_turi', 
+            'narx', 
+            'total_summa', 
+            'summa', 
+            'vaqt', 
+         
+        ] 

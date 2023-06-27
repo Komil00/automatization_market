@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from moliya.models import Moliya_chiqim, Omborxona, Omborxona_Get
-from moliya.serializers import (MoliyaChiqimPostSerializers, MoliyaChiqimGetSerializers, OmborGetAllSerializers, OmborPostSerializers,OmborGetSerializers, TranzaksiyaSerializers)
+from moliya.serializers import (MoliyaChiqimPostSerializers, MoliyaChiqimGetSerializers, OmborGetAllSerializers, OmborPostSerializers,OmborGetSerializers, OmborPutPutchAllSerializers, TranzaksiyaSerializers)
 from products.models import Mahsulot_olchov, Mahsulotlar
 from savdo.models import Tranzaksiya
 from users.models import User
@@ -181,5 +181,9 @@ class OmborViewSet(ModelViewSet):
 class OmborGetViewSet(ModelViewSet):
     queryset = Omborxona_Get.objects.all().order_by('-id')
     serializer_class = OmborGetAllSerializers
-    http_method_names = ['get']
+    http_method_names = ['get','put','putch']
 
+    def get_serializer_class(self):        
+        if self.action in ['list']:
+            return OmborGetAllSerializers
+        return OmborPutPutchAllSerializers
