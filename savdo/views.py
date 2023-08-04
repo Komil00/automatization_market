@@ -207,6 +207,23 @@ class SavdoProductViewSet(ModelViewSet):
             self.perform_create(serializer) 
             return Response(serializer.data, status=status.HTTP_201_CREATED) 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        olchov = instance.olchov
+        mahsulot = instance.mahsulot
+        miqdor = instance.miqdor
+        try:
+            miqdorni_ayirish = Omborxona.objects.get(mahsulot=mahsulot, olchov=olchov)
+            miqdorni_ayirish.miqdor = int(miqdorni_ayirish.miqdor) + int(miqdor)
+            miqdorni_ayirish.save()
+        except ObjectDoesNotExist:
+            pass
+
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)   
+
 
 # To'lovlar Views
 

@@ -181,7 +181,7 @@ class OmborViewSet(ModelViewSet):
 class OmborGetViewSet(ModelViewSet):
     queryset = Omborxona_Get.objects.all().order_by('-id')
     serializer_class = OmborGetAllSerializers
-    http_method_names = ['get','put','putch']
+    http_method_names = ['get','put','putch','delete']
 
     def get_serializer_class(self):        
         if self.action in ['list']:

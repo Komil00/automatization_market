@@ -57,7 +57,7 @@ class Omborxona(models.Model):
                 bor_edi.save()
                 return
         super().save(*args, **kwargs)
-
+    
     class Meta:
         verbose_name = 'Omborxona'
         verbose_name_plural = 'Omborxona'
@@ -91,6 +91,13 @@ class Omborxona_Get(models.Model):
             return 0
     def __str__(self):
         return f"{self.mahsulot}"
+    
+    def delete(self, *args, **kwargs):
+        bor_edi = Omborxona.objects.filter(mahsulot=self.mahsulot, olchov=self.olchov).first()
+        if bor_edi:
+            bor_edi.miqdor -= self.miqdor
+            bor_edi.save()
+        super().delete(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Omborxona_Get'
